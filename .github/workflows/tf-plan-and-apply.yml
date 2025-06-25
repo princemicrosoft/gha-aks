@@ -56,9 +56,9 @@ jobs:
     - name: Terraform Plan
       run: |
         terraform plan
-        PLAN_OUTPUT=$(terraform plan -no-color)
-        echo "$PLAN_OUTPUT"
-        printf "plan_stdout=%s\n" "$PLAN_OUTPUT" >> $GITHUB_OUTPUT
+        # PLAN_OUTPUT=$(terraform plan -no-color)
+        # echo "$PLAN_OUTPUT"
+        # printf "plan_stdout=%s\n" "$PLAN_OUTPUT" >> $GITHUB_OUTPUT
 
     - name: Terraform Apply
       run: |
