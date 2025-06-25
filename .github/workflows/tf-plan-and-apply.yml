@@ -16,7 +16,7 @@ permissions:
   pull-requests: write
 
 jobs:
-  terraform:
+  terraform-plan-and-apply:
     runs-on: ubuntu-latest
     env:
       ARM_CLIENT_ID: "${{ secrets.AZURE_CLIENT_ID }}"
@@ -52,9 +52,10 @@ jobs:
     - name: Terraform Validate
       run: |
         terraform validate -no-color
-        
+
     - name: Terraform Plan
       run: |
+        terraform plan
         PLAN_OUTPUT=$(terraform plan -no-color)
         echo "$PLAN_OUTPUT"
         printf "plan_stdout=%s\n" "$PLAN_OUTPUT" >> $GITHUB_OUTPUT
