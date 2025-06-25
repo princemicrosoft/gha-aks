@@ -1,0 +1,64 @@
+name: "Terraform Apply for DEV"
+
+on:
+#   push:
+#     branches:
+#       - "main"
+#     paths:
+#       - "terraform/**"
+#       - "modules/**"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  id-token: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+    env:
+      ARM_CLIENT_ID: "${{ secrets.AZURE_CLIENT_ID }}"
+      ARM_SUBSCRIPTION_ID: "${{ secrets.AZURE_SUBSCRIPTION_ID }}"
+      ARM_TENANT_ID: "${{ secrets.AZURE_TENANT_ID }}"
+    defaults:
+      run:
+        working-directory: terraform
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: "Az CLI login"
+      uses: azure/login@v2
+      with:
+        client-id: ${{ secrets.client-id }}
+        tenant-id: ${{ secrets.tenant-id }}
+        subscription-id: ${{ secrets.subscription-id }}
+
+    - name: Set Up Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+          terraform_version: "latest"
+
+    - name: Terraform fmt
+      run: |
+        terraform fmt -check
+
+    - name: Terraform Validate
+      run: |
+        terraform validate -no-color
+
+    - name: Terraform Init
+      run: |
+        terraform init
+
+    - name: Terraform Plan
+      run: |
+        PLAN_OUTPUT=$(terraform plan -no-color)
+        echo "$PLAN_OUTPUT"
+        printf "plan_stdout=%s\n" "$PLAN_OUTPUT" >> $GITHUB_OUTPUT
+
+    - name: Terraform Apply
+      run: |
+       terraform apply -auto-approve
